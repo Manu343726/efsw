@@ -9,10 +9,12 @@ class Efsw(ConanFile):
     license = 'MIT'
     version = '1.0.0'
     options = {
-        'shared': [True, False]
+        'shared': [True, False],
+        'fPIC': [True, False]
     }
     default_options = (
-        'shared=False'
+        'shared=False',
+        'fPIC=False'
     )
     generators = 'cmake'
 
@@ -40,9 +42,10 @@ class Efsw(ConanFile):
 
     def build(self):
         cmake = CMake(self.settings)
-        self.output.info('Configure and build (shared={})...'.format(self.options.shared))
-        options = '-DSTATIC_LIB=' + ('OFF' if self.options.shared else 'ON')
-
+        self.output.info('Configure and build...'.format(self.options.shared))
+        options  = ' -DSTATIC_LIB=' + ('OFF' if self.options.shared else 'ON')
+        options += ' -DCMAKE_POSITION_INDEPENDENT_CODE=' + ('ON' if self.options.fPIC else 'OFF')
+        self.output.info(' - cmake options: {}'.format(options))
         self.run('cmake {} {} {}'.format(self.sourcedir, cmake.command_line, options))
         self.run('cmake --build . {}'.format(cmake.build_config))
 
